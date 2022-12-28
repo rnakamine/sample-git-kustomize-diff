@@ -26,5 +26,5 @@ jobs:
     - name: kustomize diff
       run: |
         NUMBER=$(echo $GITHUB_REF | sed -e 's/[^0-9]//g')
-        git-kustomize-diff run --base origin/$GITHUB_BASE_REF --target origin/$GITHUB_HEAD_REF | \
+        git-kustomize-diff run --base origin/$GITHUB_BASE_REF --target origin/$GITHUB_HEAD_REF --include ".*/overlays/*/" | \
         GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} ghput pr-comment --owner rnakamine --repo sample-git-kustomize-diff --number $NUMBER
