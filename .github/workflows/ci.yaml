@@ -1,0 +1,30 @@
+name: CI
+on: pull_request
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ github.head_ref }}
+        clean: false
+        fetch-depth: 0
+    - name: setup git-kustomize-diff
+      run: |
+        curl -sLf https://github.com/dtaniwaki/git-kustomize-diff/releases/download/v0.1.8/git-kustomize-diff_linux_x86_64.tar.gz -o git-kustomize-diff.tar.gz && \
+        tar xzf git-kustomize-diff.tar.gz && \
+        mv git-kustomize-diff /usr/local/bin && \
+        rm git-kustomize-diff.tar.gz 
+    - name: setup ghput
+      run: |
+        curl -sLf https://github.com/k1LoW/ghput/releases/download/v0.12.2/ghput_v0.12.2_linux_amd64.tar.gz -o ghput.tar.gz && \
+        tar xzf ghput.tar.gz && \
+        mv ghput /usr/local/bin && \
+        rm ghput.tar.gz 
+    - name: kustomize diff
+      run: |
+        NUMBER=$(echo $GITHUB_REF | sed -e 's/[^0-9]//g')
+        git-kustomize-diff run --base origin/$GITHUB_BASE_REF --target origin/$GITHUB_HEAD_REF | \
+        GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} ghput pr-comment --owner rnakamine --repo sample-git-kustomize-diff --number $NUMBER
